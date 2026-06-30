@@ -17,11 +17,10 @@ import os
 import sys
 import io
 import time
-import threading
+import asyncio
 from datetime import datetime
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -380,79 +379,31 @@ def url_to_filename(url):
     return path.replace('/', '_').replace('?', '_').replace('#', '_').replace(' ', '_')[:80]
 
 
-def generate_cover_pdf(output_path, total_pages):
-    """Generate cover page PDF using Playwright."""
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
-        context = browser.new_context(viewport={'width': 794, 'height': 1123})
-        page = context.new_page()
-        page.set_content(generate_cover_html(total_pages), wait_until='domcontentloaded', timeout=10000)
-        page.wait_for_timeout(500)
-        page.pdf(
+async def generate_cover_pdf_async(output_path, total_pages):
+    """Generate cover page PDF using Playwright async API."""
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(headless=True)
+        context = await browser.new_context(viewport={'width': 794, 'height': 1123})
+        page = await context.new_page()
+        await page.set_content(generate_cover_html(total_pages), wait_until='domcontentloaded', timeout=10000)
+        await page.wait_for_timeout(500)
+        await page.pdf(
             path=output_path,
             format='A4',
             print_background=True,
             margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
         )
-        browser.close()
+        await browser.close()
     print(f'  Generated: {output_path}')
 
 
 # ============================================================
-# Thread-safe progress tracker
+# Async worker: single browser context, semaphore-limited concurrency
 # ============================================================
-class ProgressTracker:
-    """Thread-safe counter and display for multi-threaded PDF generation."""
-
-    def __init__(self, total):
-        self.total = total
-        self.done = 0
-        self.success = 0
-        self.skipped = 0
-        self.failed = 0
-        self._lock = threading.Lock()
-        self._current_tasks = {}  # thread_id -> (idx, title)
-
-    def mark_done(self, idx, title, status):
-        """Mark a page as done: 'success', 'skipped', or 'failed'."""
-        with self._lock:
-            self.done += 1
-            if status == 'success':
-                self.success += 1
-            elif status == 'skipped':
-                self.skipped += 1
-            elif status == 'failed':
-                self.failed += 1
-            tid = threading.current_thread().ident
-            if tid in self._current_tasks:
-                del self._current_tasks[tid]
-
-    def mark_start(self, idx, title):
-        """Register a page as currently being processed."""
-        tid = threading.current_thread().ident
-        with self._lock:
-            self._current_tasks[tid] = (idx, title)
-
-    def status_line(self):
-        """Build a one-line status summary."""
-        with self._lock:
-            return (f'\r  Progress: {self.done}/{self.total} done | '
-                    f'✓ {self.success}  ⏭ {self.skipped}  ✗ {self.failed} | '
-                    f'active: {len(self._current_tasks)}')
-
-    def get_summary(self):
-        """Return final counts."""
-        with self._lock:
-            return self.success, self.skipped, self.failed
-
-
-# ============================================================
-# Worker: one browser context per thread
-# ============================================================
-def convert_page_worker(page_data, pdfs_dir, timeout_sec, max_retries, progress):
+async def convert_page_async(page_data, pdfs_dir, timeout_sec, max_retries, browser, progress, lock):
     """
-    Process a single page in a worker thread.
-    Each worker creates its own Playwright browser context for isolation.
+    Process a single page using Playwright async API.
+    Shares a single browser instance; each call gets its own Page.
     """
     idx = page_data['_idx']
     title = page_data['title']
@@ -463,93 +414,80 @@ def convert_page_worker(page_data, pdfs_dir, timeout_sec, max_retries, progress)
 
     # Skip existing valid PDFs
     if output_path.exists() and output_path.stat().st_size > 0:
-        progress.mark_done(idx, title, 'skipped')
+        async with lock:
+            progress['skipped'] += 1
+            progress['done'] += 1
         print(f'    [{idx:3d}] ⏭ {title}')
         return
-
-    progress.mark_start(idx, title)
 
     # Retry loop
     last_error = None
     for attempt in range(1, max_retries + 1):
+        page = None
         try:
-            pw = sync_playwright()
-            pw_inst = pw.start()
-            browser = pw_inst.chromium.launch(headless=True)
-            context = browser.new_context(
-                viewport={'width': 1280, 'height': 800},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            )
-            page = context.new_page()
-
+            page = await browser.new_page()
             try:
-                page.goto(url, wait_until='networkidle', timeout=timeout_sec * 1000)
+                await page.goto(url, wait_until='networkidle', timeout=timeout_sec * 1000)
             except Exception:
                 pass  # Continue even on timeout
 
-            page.wait_for_timeout(3000)
+            await page.wait_for_timeout(3000)
 
             # Check for 404
-            is_404 = page.evaluate('''() => {
+            is_404 = await page.evaluate('''() => {
                 var h1 = document.querySelector('h1');
                 return h1 && h1.textContent && (h1.textContent.includes('404') || h1.textContent.includes('Not Found'));
             }''')
             if is_404:
-                page.close()
-                context.close()
-                browser.close()
-                pw.stop()
-                progress.mark_done(idx, title, 'failed')
+                await page.close()
+                async with lock:
+                    progress['failed'] += 1
+                    progress['done'] += 1
                 print(f'    [{idx:3d}] ✗ {title} — 404 Not Found')
                 return
 
             # Apply DOM manipulation
-            page.evaluate(DOM_MANIPULATE_JS)
-            page.wait_for_timeout(3000)
+            await page.evaluate(DOM_MANIPULATE_JS)
+            await page.wait_for_timeout(3000)
 
             # Generate PDF
-            page.pdf(
+            await page.pdf(
                 path=str(output_path),
                 format='A4',
                 print_background=True,
                 margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
             )
 
-            page.close()
-            context.close()
-            browser.close()
-            pw.stop()
+            await page.close()
 
             size_kb = output_path.stat().st_size / 1024 if output_path.exists() else 0
-            progress.mark_done(idx, title, 'success')
+            async with lock:
+                progress['success'] += 1
+                progress['done'] += 1
             print(f'    [{idx:3d}] ✓ {title:<48s} {size_kb:>8.1f} KB')
             return
 
         except Exception as e:
             last_error = e
-            # Clean up on error
-            try:
-                page.close()
-            except Exception:
-                pass
-            try:
-                context.close()
-            except Exception:
-                pass
-            try:
-                browser.close()
-            except Exception:
-                pass
-            try:
-                pw.stop()
-            except Exception:
-                pass
+            if page:
+                try:
+                    await page.close()
+                except Exception:
+                    pass
             if attempt < max_retries:
-                time.sleep(1)  # Brief pause before retry
+                await asyncio.sleep(1)  # Brief pause before retry
 
     # All retries exhausted
-    progress.mark_done(idx, title, 'failed')
+    async with lock:
+        progress['failed'] += 1
+        progress['done'] += 1
     print(f'    [{idx:3d}] ✗ {title:<48s} FAILED after {max_retries} attempts: {last_error}')
+
+
+async def worker_sem(page_data, pdfs_dir, timeout_sec, max_retries, browser, progress, lock, semaphore):
+    """Wrapper that limits concurrency via semaphore."""
+    async with semaphore:
+        await convert_page_async(page_data, pdfs_dir, timeout_sec, max_retries, browser, progress, lock)
 
 
 # ============================================================
@@ -581,7 +519,7 @@ def main(workers=None, timeout=60, max_retries=3):
     cover_path = cover_dir / 'Cover_Claude_Code.pdf'
     if not cover_path.exists():
         print('  Generating cover page...')
-        generate_cover_pdf(str(cover_path), total)
+        asyncio.run(generate_cover_pdf_async(str(cover_path), total))
     else:
         print('  Cover already exists, skipping.')
     print()
@@ -590,35 +528,34 @@ def main(workers=None, timeout=60, max_retries=3):
     for i, p in enumerate(pages, 1):
         p['_idx'] = i
 
-    # Progress tracker
-    progress = ProgressTracker(total)
-
-    # Run workers
+    # Run async workers
     print('  Generating page PDFs...')
     print()
 
-    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix='pdf-worker') as executor:
-        futures = {}
-        for page_data in pages:
-            future = executor.submit(
-                convert_page_worker,
-                page_data, pdfs_dir, timeout, max_retries, progress,
-            )
-            futures[future] = page_data
+    async def run_all():
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
 
-        for future in as_completed(futures):
-            future.result()  # Propagate exceptions
-            # Print progress after each completion
-            sys.stderr.write(progress.status_line())
-            sys.stderr.flush()
+            progress = {'done': 0, 'success': 0, 'skipped': 0, 'failed': 0}
+            lock = asyncio.Lock()
+            semaphore = asyncio.Semaphore(workers)
 
-    # Final newline after progress line
-    sys.stderr.write('\n')
-    sys.stderr.flush()
+            tasks = []
+            for page_data in pages:
+                task = asyncio.create_task(
+                    worker_sem(page_data, pdfs_dir, timeout, max_retries, browser, progress, lock, semaphore)
+                )
+                tasks.append(task)
 
-    success, skipped, failed = progress.get_summary()
+            await asyncio.gather(*tasks)
+
+            await browser.close()
+            return progress
+
+    summary = asyncio.run(run_all())
+
     print()
-    print(f'  Summary: {success} generated, {skipped} skipped, {failed} failed')
+    print(f'  Summary: {summary["success"]} generated, {summary["skipped"]} skipped, {summary["failed"]} failed')
     print(f'  Output directory: {pdfs_dir}/')
 
 
