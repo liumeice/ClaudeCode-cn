@@ -7,7 +7,7 @@ to remove navigation/sidebar/TOC, and exports to PDF.
 
 Usage:
   source .venv/Scripts/activate
-  python step2_generate_pdfs_mt.py                    # 4 workers, default settings
+  python step2_generate_pdfs_mt.py                    # auto-detect CPU threads
   python step2_generate_pdfs_mt.py --workers 8        # 8 concurrent workers
   python step2_generate_pdfs_mt.py --workers 2 --retries 5 --timeout 90
 """
@@ -555,7 +555,9 @@ def convert_page_worker(page_data, pdfs_dir, timeout_sec, max_retries, progress)
 # ============================================================
 # Main
 # ============================================================
-def main(workers=4, timeout=60, max_retries=3):
+def main(workers=None, timeout=60, max_retries=3):
+    if workers is None:
+        workers = os.cpu_count() or 4
     print(f'Step 2 (MT): Generating individual PDFs (multi-threaded, {workers} workers)')
     print()
 
@@ -622,8 +624,10 @@ def main(workers=4, timeout=60, max_retries=3):
 
 if __name__ == '__main__':
     import argparse
+    cpu_count = os.cpu_count() or 4
     parser = argparse.ArgumentParser(description='Generate PDFs for Claude Code Docs pages (multi-threaded)')
-    parser.add_argument('--workers', type=int, default=4, help='Number of concurrent workers (default: 4)')
+    parser.add_argument('--workers', type=int, default=cpu_count,
+                        help=f'Number of concurrent workers (default: auto-detect CPU threads, detected: {cpu_count})')
     parser.add_argument('--timeout', type=int, default=60, help='Page load timeout in seconds (default: 60)')
     parser.add_argument('--retries', type=int, default=3, help='Max retries per page (default: 3)')
     args = parser.parse_args()
