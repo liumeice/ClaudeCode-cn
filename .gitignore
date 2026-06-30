@@ -13,6 +13,10 @@ temp/
 # Backup files
 *.bak
 
+# Generated files
+sidebar.json
+sidebar.md
+
 # OS files
 .DS_Store
 Thumbs.db
