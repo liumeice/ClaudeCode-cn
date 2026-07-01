@@ -31,9 +31,10 @@ run.bat step3   # Merge into final PDF → Output/ClaudeCodeDocs.pdf
 ## Pipeline Overview
 
 ```
-step1_scrape_sidebar.py  →  sidebar.json  +  sidebar.md
-step2_generate_pdfs.py   →  temp/pdfs/*.pdf  +  cover PDF
-step3_merge_pdfs.py      →  Output/ClaudeCodeDocs.pdf
+step1_scrape_sidebar.py    →  sidebar.json  +  sidebar.md
+step2_generate_pdfs.py     →  temp/pdfs/*.pdf  +  cover PDF        (single-threaded)
+step2_generate_pdfs_mt.py  →  temp/pdfs/*.pdf  +  cover PDF        (multi-threaded, recommended)
+step3_merge_pdfs.py        →  Output/ClaudeCodeDocs.pdf
 ```
 
 ### Step 1 — Scrape Sidebar
@@ -71,6 +72,26 @@ Reads `sidebar.json`, visits each page with Playwright, and:
 
 > **Idempotent** — already-generated PDFs are skipped. Safe to re-run after modifying `DOM_MANIPULATE_JS`.
 
+#### Multi-threaded version (recommended)
+
+`step2_generate_pdfs_mt.py` uses `asyncio` with semaphore-limited concurrency for much faster execution:
+
+```bash
+python step2_generate_pdfs_mt.py                          # auto-detect CPU threads
+python step2_generate_pdfs_mt.py --workers 8              # specify worker count
+python step2_generate_pdfs_mt.py --workers 2 --retries 5 --timeout 90
+```
+
+| Parameter | Default | Description |
+| -- | -- | -- |
+| `--workers` | CPU thread count | Number of concurrent browser tabs |
+| `--timeout` | 60 | Page load timeout in seconds |
+| `--retries` | 3 | Max retries per page on failure |
+
+#### zh-CN → en fallback
+
+If a Chinese page returns 404, both step2 scripts automatically try the English URL (`/zh-CN/` → `/en/`). The fallback PDF is saved as `_docs_en_*.pdf`. This ensures maximum coverage even when some pages are not yet translated.
+
 ### Step 3 — Merge PDFs
 
 Uses **PyMuPDF** (`fitz`) to merge all individual PDFs into `Output/ClaudeCodeDocs.pdf` with:
@@ -78,11 +99,12 @@ Uses **PyMuPDF** (`fitz`) to merge all individual PDFs into `Output/ClaudeCodeDo
 - Precise page-level **bookmarks** matching the sidebar hierarchy
 - Category nodes pointing to their first child's starting page
 - Full **TOC** (table of contents) embedded in the PDF
+- English fallback support — when a zh-CN PDF is missing, it automatically uses the en version
 
 ## Dependencies
 
 - **Python 3.x** with virtual environment (`.venv/`)
-- **Playwright** (sync API, Chromium) — browser automation for scraping and PDF export
+- **Playwright** (sync API for step2, async API for step2_mt, Chromium) — browser automation for scraping and PDF export
 - **PyMuPDF** (`fitz`) — PDF merging and bookmark/TOC generation
 
 Install dependencies (if rebuilding the venv):
@@ -95,20 +117,22 @@ playwright install chromium
 ## Project Structure
 
 ```
-├── CLAUDE.md                  # Project instructions for Claude Code
-├── run.bat                    # Windows batch runner for the pipeline
-├── step1_scrape_sidebar.py    # Step 1: scrape sidebar structure
-├── step2_generate_pdfs.py     # Step 2: generate individual page PDFs + cover
-├── step3_merge_pdfs.py        # Step 3: merge PDFs with bookmarks
-├── sidebar.json               # Generated: documentation tree (Step 1)
-├── sidebar.md                 # Generated: markdown TOC (Step 1)
+├── CLAUDE.md                      # Project instructions for Claude Code
+├── README.md                      # This file
+├── run.bat                        # Windows batch runner for the pipeline
+├── step1_scrape_sidebar.py        # Step 1: scrape sidebar structure
+├── step2_generate_pdfs.py         # Step 2: generate individual page PDFs (single-threaded)
+├── step2_generate_pdfs_mt.py      # Step 2: generate individual page PDFs (multi-threaded)
+├── step3_merge_pdfs.py            # Step 3: merge PDFs with bookmarks
+├── sidebar.json                   # Generated: documentation tree (Step 1)
+├── sidebar.md                     # Generated: markdown TOC (Step 1)
 ├── temp/
-│   ├── pdfs/                  # Generated: individual page PDFs (Step 2)
-│   ├── hooks_ancestors.json   # Hook configuration data
-│   ├── hooks_dom.json         # Hook DOM snapshot data
+│   ├── pdfs/                      # Generated: individual page PDFs (Step 2)
+│   ├── hooks_ancestors.json       # Hook configuration data
+│   ├── hooks_dom.json             # Hook DOM snapshot data
 │   └── ...
 └── Output/
-    ├── ClaudeCodeDocs.pdf     # Final merged PDF (Step 3)
+    ├── ClaudeCodeDocs.pdf         # Final merged PDF (Step 3)
     └── temp/
         └── Cover_Claude_Code.pdf  # Cover page (Step 2)
 ```
