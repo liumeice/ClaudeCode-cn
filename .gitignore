@@ -20,3 +20,6 @@ sidebar.md
 # OS files
 .DS_Store
 Thumbs.db
+
+# Claude Code session files
+.claude/
