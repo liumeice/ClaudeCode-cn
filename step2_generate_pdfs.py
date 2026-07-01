@@ -394,8 +394,12 @@ def generate_cover_pdf(output_path, total_pages):
     print(f'  Generated: {output_path}')
 
 
-def generate_page_pdf(browser, context, url, output_path):
-    """Generate a single page PDF with DOM manipulation."""
+def generate_page_pdf(browser, context, url, output_path, title, idx=0, total=0):
+    """Generate a single page PDF with DOM manipulation.
+    Falls back to English URL if zh-CN page returns 404.
+    """
+    label = f'[{idx:3d}/{total}]' if total else ''
+
     page = context.new_page()
     try:
         try:
@@ -411,7 +415,7 @@ def generate_page_pdf(browser, context, url, output_path):
         }''')
         if is_404:
             page.close()
-            return False
+            return None  # Signal 404, caller may retry with fallback
 
         # Apply DOM manipulation
         page.evaluate(DOM_MANIPULATE_JS)
@@ -492,10 +496,24 @@ def main():
                 print(f'    [{idx:3d}/{total}] ⏭ Skip: {title}')
                 continue
 
-            ok = generate_page_pdf(browser, context, url, str(output_path))
+            ok = generate_page_pdf(browser, context, url, str(output_path), title, idx, total)
+
+            # Fallback: if zh-CN page is 404, try English version
+            if ok is None and '/zh-CN/' in href:
+                en_href = href.replace('/zh-CN/', '/en/')
+                en_url = f'{ORIGIN}{en_href}'
+                en_filename = url_to_filename(en_url) + '.pdf'
+                en_output_path = pdfs_dir / en_filename
+                if not (en_output_path.exists() and en_output_path.stat().st_size > 0):
+                    print(f'    [{idx:3d}/{total}]   ↪ 404, trying English: {en_href}')
+                    ok = generate_page_pdf(browser, context, en_url, str(en_output_path), title, idx, total)
+                else:
+                    ok = True  # English version already exists
+                    print(f'    [{idx:3d}/{total}]   ↪ 404, English version already exists')
 
             if ok:
-                size_kb = output_path.stat().st_size / 1024 if output_path.exists() else 0
+                actual_path = en_output_path if '/zh-CN/' in href and not output_path.exists() else output_path
+                size_kb = actual_path.stat().st_size / 1024 if actual_path.exists() else 0
                 print(f'    [{idx:3d}/{total}] {title:<50s} {size_kb:>8.1f} KB')
                 success += 1
             else:

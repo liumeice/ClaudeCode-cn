@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.0.0">
+  <diagram id="step1-flowchart" name="Step 1: 抓取侧边栏结构">
+    <mxGraphModel dx="1422" dy="734" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Step 1: 抓取侧边栏结构 (step1_scrape_sidebar.py)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="360" y="15" width="440" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="开始" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="525" y="60" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Define NAV_TABS -->
+        <mxCell id="navtabs" value="定义 NAV_TABS&#xa;8个导航Tab + 起始URL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="120" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="start" target="navtabs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Launch Playwright -->
+        <mxCell id="launch" value="启动 Playwright Chromium&#xa;headless=True, viewport=1600x900" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="185" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="navtabs" target="launch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Loop over tabs -->
+        <mxCell id="loopstart" value="遍历每个 NAV_TAB (共8个)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="490" y="260" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="launch" target="loopstart">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Navigate to URL -->
+        <mxCell id="navigate" value="page.goto(url)&#xa;wait_until='networkidle', timeout=60s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="340" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="loopstart" target="navigate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Wait 2s -->
+        <mxCell id="wait2" value="page.wait_for_timeout(2000)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="410" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="navigate" target="wait2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Scroll sidebar -->
+        <mxCell id="scroll" value="滚动侧边栏到底部&#xa;触发懒加载" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="465" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="wait2" target="scroll">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Extract sidebar via JS -->
+        <mxCell id="extract" value="page.evaluate() 提取侧边栏&#xa;遍历 nav#sidebar 中的 sections&#xa;提取 group header + li items&#xa;过滤外部链接" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="520" width="180" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="scroll" target="extract">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Count unique pages -->
+        <mxCell id="count" value="统计本页唯一页面数&#xa;去重 seen_hrefs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="605" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="extract" target="count">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Loop back -->
+        <mxCell id="loopback" value="还有 Tab?" style="text;html=1;align=right;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#9673a6;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="730" y="275" width="70" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="是" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff;fontColor=#d6b656" edge="1" parent="1" source="count" target="loopstart">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="622" />
+              <mxPoint x="760" y="285" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Close browser -->
+        <mxCell id="close" value="关闭浏览器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="670" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="否" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="count" target="close">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Build tree -->
+        <mxCell id="buildtree" value="build_tree()&#xa;构建三级层级树&#xa;NavTab → Group → Pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="730" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="close" target="buildtree">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- count_leaves -->
+        <mxCell id="countleaves" value="count_leaves()&#xa;统计总页面数 / 叶子数" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="805" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="buildtree" target="countleaves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- clean_tree -->
+        <mxCell id="cleantree" value="clean_tree()&#xa;清除空 href" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="485" y="875" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="countleaves" target="cleantree">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Output files - side by side -->
+        <mxCell id="json_out" value="sidebar.json&#xa;完整树结构 (JSON)&#xa;含 source/root/total_pages" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="340" y="945" width="140" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="md_out" value="sidebar.md&#xa;Markdown TOC&#xa;- 嵌套列表 + 链接" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="520" y="945" width="140" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="cleantree" target="json_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="cleantree" target="md_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="完成" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="525" y="1045" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="md_out" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="图例说明" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="60" width="200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="lg1" value="🟢 椭圆: 开始/结束" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="10" y="30" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="🔷 圆角矩形: 处理步骤" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="10" y="55" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="🟡 菱形: 循环/判断" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="10" y="80" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" value="🟠 圆柱: 输出文件" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="10" y="105" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" value="🟣 紫色框: 浏览器操作" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="10" y="130" width="170" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- NAV_TABS detail list -->
+        <mxCell id="tabsdetail" value="NAV_TABS 列表" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="250" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" value="1. 快速_start → /overview&#xa;2. 使用代理 → /agents&#xa;3. 管理 → /admin-setup&#xa;4. 设置 → /settings&#xa;5. 参考 → /cli-reference&#xa;6. Agent SDK → /agent-sdk/overview&#xa;7. 新闻动态 → /whats-new&#xa;8. 资源 → /legal-and-compliance" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=9;align=left" vertex="1" parent="tabsdetail">
+          <mxGeometry x="8" y="30" width="184" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- extract_sidebar_groups detail -->
+        <mxCell id="extractdetail" value="extract_sidebar_groups() 详情" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="490" width="200" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="ed1" value="1. page.evaluate() 滚动侧边栏到底部&#xa;2. 选择 nav#sidebar&#xa;3. 遍历 #navigation-items > div&#xa;4. 提取 .sidebar-group-header h3 标题&#xa;5. 遍历 ul.sidebar-group > li > a&#xa;6. 获取 href + span 文本&#xa;7. 过滤外部链接 (http/ target)&#xa;8. 保留包含 /docs/zh-CN/ 的链接&#xa;9. 返回 [{group, items}] 列表" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=9;align=left" vertex="1" parent="extractdetail">
+          <mxGeometry x="8" y="30" width="184" height="230" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

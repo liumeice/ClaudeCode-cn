@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.0.0">
+  <diagram id="claude-code-docs-pipeline" name="Claude Code Docs PDF Pipeline">
+    <mxGraphModel dx="1422" dy="734" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="2" value="Claude Code Docs PDF 生成流水线" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="420" y="10" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Step 0: Input Source ========== -->
+        <mxCell id="3" value="Claude Code Docs 网站" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="450" y="70" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="https://code.claude.com/docs/zh-CN/" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="455" y="130" width="255" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Website -> Step 1 -->
+        <mxCell id="5" value="8个导航Tab的URL列表" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="3" target="6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Step 1 Container ========== -->
+        <mxCell id="6" value="Step 1: 抓取侧边栏结构" style="swimlane;startSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="380" y="200" width="400" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="step1_scrape_sidebar.py" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=11;fontStyle=1" vertex="1" parent="6">
+          <mxGeometry x="10" y="45" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="Playwright 遍历 8 个 Tab&#xa;提取侧边栏 HTML 结构" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="6">
+          <mxGeometry x="20" y="75" width="360" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="JS 解析侧边栏节点&#xa;构建层级树结构" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="6">
+          <mxGeometry x="20" y="130" width="360" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="依赖: Playwright (Chromium)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#999999" vertex="1" parent="6">
+          <mxGeometry x="20" y="180" width="210" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Step 1 -> Output files -->
+        <mxCell id="11" value="sidebar.json&#xa;sidebar.md" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="6" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Output files after Step 1 ========== -->
+        <mxCell id="12" value="sidebar.json" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="390" y="440" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="sidebar.md" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="510" y="440" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="输出文件" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="470" y="410" width="50" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: sidebar.json -> Step 2 -->
+        <mxCell id="15" value="读取文档树" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="12" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Step 2 Container ========== -->
+        <mxCell id="16" value="Step 2: 生成单页 PDF" style="swimlane;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="120" y="540" width="520" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="step2_generate_pdfs.py" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=11;fontStyle=1" vertex="1" parent="16">
+          <mxGeometry x="10" y="45" width="170" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-steps inside Step 2 -->
+        <mxCell id="18" value="读取 sidebar.json&#xa;获取所有文档页面 URL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="16">
+          <mxGeometry x="20" y="80" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="Playwright 访问页面&#xa;注入 DOM 清理脚本" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="16">
+          <mxGeometry x="175" y="80" width="155" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="隐藏导航/侧边栏/TOC&#xa;展开 Tab 组件&#xa;统一背景为白色" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="16">
+          <mxGeometry x="355" y="80" width="145" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="导出为 A4 PDF&#xa;(跳过已存在的)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="16">
+          <mxGeometry x="175" y="160" width="155" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="生成封面 PDF&#xa;Cover_Claude_Code.pdf" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="16">
+          <mxGeometry x="355" y="160" width="145" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-step arrows inside Step 2 -->
+        <mxCell id="23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="16" source="18" target="19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="16" source="19" target="20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="16" source="19" target="21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Dependency label inside Step 2 -->
+        <mxCell id="26" value="依赖: Playwright, PyMuPDF(fitz)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#999999" vertex="1" parent="16">
+          <mxGeometry x="20" y="255" width="240" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Step 2 -> Output PDFs -->
+        <mxCell id="27" value="temp/pdfs/*.pdf&#xa;Cover_Claude_Code.pdf" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="16" target="28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Output PDFs ========== -->
+        <mxCell id="28" value="单页 PDFs 集合&#xa;+ 封面 PDF" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="180" y="860" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="29" value="输出目录: temp/pdfs/" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="175" y="940" width="145" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: PDFs -> Step 3 -->
+        <mxCell id="30" value="所有单页 PDF + 封面" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="28" target="31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Step 3 Container ========== -->
+        <mxCell id="31" value="Step 3: 合并 PDF" style="swimlane;startSize=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="140" y="1000" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="32" value="step3_merge_pdfs.py" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=11;fontStyle=1" vertex="1" parent="31">
+          <mxGeometry x="10" y="45" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="33" value="按 sidebar.json 层级&#xa;排序并合并所有 PDF" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="31">
+          <mxGeometry x="15" y="75" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="34" value="生成带书签的&#xa;最终 PDF (带 TOC)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" vertex="1" parent="31">
+          <mxGeometry x="15" y="130" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="35" value="依赖: PyMuPDF (fitz)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#999999" vertex="1" parent="31">
+          <mxGeometry x="15" y="180" width="165" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Step 3 -> Final Output -->
+        <mxCell id="36" value="最终合并 PDF" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="31" target="37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Final Output ========== -->
+        <mxCell id="37" value="Output/ClaudeCodeDocs.pdf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="1050" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="38" value="最终交付物: 带完整书签/目录的&#xa;单文件 PDF" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="1125" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Side annotations ========== -->
+        <mxCell id="39" value="运行方式: run.bat 或单独运行 Python 脚本&#xa;虚拟环境: .venv/&#xa;Step 2 支持断点续跑 (幂等)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left" vertex="1" parent="1">
+          <mxGeometry x="720" y="440" width="300" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- ========== All output files summary ========== -->
+        <mxCell id="40" value="输出文件总览" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="720" y="530" width="300" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="41" value="sidebar.json — 文档树结构&#xa;sidebar.md — Markdown TOC&#xa;temp/pdfs/*.pdf — 单页 PDF&#xa;Output/temp/Cover_Claude_Code.pdf — 封面&#xa;Output/ClaudeCodeDocs.pdf — 最终文件" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=10;align=left" vertex="1" parent="40">
+          <mxGeometry x="10" y="35" width="280" height="165" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from Step 2 outputs to summary box -->
+        <mxCell id="42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0" edge="1" parent="1" source="28" target="40">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="895" />
+              <mxPoint x="720" y="895" />
+              <mxPoint x="720" y="582" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Step 1 outputs to summary box -->
+        <mxCell id="43" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="13" target="40">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="470" />
+              <mxPoint x="720" y="470" />
+              <mxPoint x="720" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

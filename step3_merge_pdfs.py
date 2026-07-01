@@ -43,6 +43,22 @@ def url_to_filename(url):
     return path.replace('/', '_').replace('?', '_').replace('#', '_').replace(' ', '_')[:80]
 
 
+def find_page_pdf(pdfs_dir, href, base_url=BASE_URL):
+    """Find the PDF for a page href, trying zh-CN first then en fallback."""
+    filename = url_to_filename(base_url + href) + ".pdf"
+    pdf_path = pdfs_dir / filename
+    if pdf_path.exists() and pdf_path.stat().st_size > 0:
+        return pdf_path
+    # Fallback: try English URL if zh-CN version doesn't exist
+    if "/zh-CN/" in href:
+        en_href = href.replace("/zh-CN/", "/en/")
+        en_filename = url_to_filename(base_url + en_href) + ".pdf"
+        en_path = pdfs_dir / en_filename
+        if en_path.exists() and en_path.stat().st_size > 0:
+            return en_path
+    return None
+
+
 def build_precise_toc(tree, page_start_map):
     """
     Build TOC where each bookmark points to the starting page of that webpage.
@@ -125,9 +141,8 @@ def main():
     pdf_page_counts = {}
     for page_data in pages:
         href = page_data["href"]
-        filename = url_to_filename(BASE_URL + href) + ".pdf"
-        pdf_path = pdfs_dir / filename
-        if pdf_path.exists() and pdf_path.stat().st_size > 0:
+        pdf_path = find_page_pdf(pdfs_dir, href)
+        if pdf_path:
             try:
                 doc = fitz.open(str(pdf_path))
                 pdf_page_counts[href] = doc.page_count
@@ -161,11 +176,11 @@ def main():
     # Page PDFs in order
     for page_data in pages:
         href = page_data["href"]
-        filename = url_to_filename(BASE_URL + href) + ".pdf"
-        pdf_path = pdfs_dir / filename
-        if pdf_path.exists() and pdf_path.stat().st_size > 0:
+        pdf_path = find_page_pdf(pdfs_dir, href)
+        if pdf_path:
             pdf_files.append(str(pdf_path))
         else:
+            filename = url_to_filename(BASE_URL + href) + ".pdf"
             print(f"  Warning: {filename} not found or empty, skipping")
 
     print(f"  PDFs to merge: {len(pdf_files)}")

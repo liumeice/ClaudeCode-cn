@@ -403,6 +403,7 @@ async def generate_cover_pdf_async(output_path, total_pages):
 async def convert_page_async(page_data, pdfs_dir, timeout_sec, max_retries, browser, progress, lock):
     """
     Process a single page using Playwright async API.
+    Falls back to English URL if zh-CN page returns 404.
     Shares a single browser instance; each call gets its own Page.
     """
     idx = page_data['_idx']
@@ -420,68 +421,94 @@ async def convert_page_async(page_data, pdfs_dir, timeout_sec, max_retries, brow
         print(f'    [{idx:3d}] ⏭ {title}')
         return
 
-    # Retry loop
-    last_error = None
-    for attempt in range(1, max_retries + 1):
-        page = None
-        try:
-            page = await browser.new_page()
+    # Try converting; if 404 and zh-CN, fallback to English
+    async def _do_convert(target_url, target_output_path):
+        """Attempt to convert a single URL. Returns True/False/None(success/error/404)."""
+        last_error = None
+        for attempt in range(1, max_retries + 1):
+            page = None
             try:
-                await page.goto(url, wait_until='networkidle', timeout=timeout_sec * 1000)
-            except Exception:
-                pass  # Continue even on timeout
+                page = await browser.new_page()
+                try:
+                    await page.goto(target_url, wait_until='networkidle', timeout=timeout_sec * 1000)
+                except Exception:
+                    pass  # Continue even on timeout
 
-            await page.wait_for_timeout(3000)
+                await page.wait_for_timeout(3000)
 
-            # Check for 404
-            is_404 = await page.evaluate('''() => {
-                var h1 = document.querySelector('h1');
-                return h1 && h1.textContent && (h1.textContent.includes('404') || h1.textContent.includes('Not Found'));
-            }''')
-            if is_404:
+                # Check for 404
+                is_404 = await page.evaluate('''() => {
+                    var h1 = document.querySelector('h1');
+                    return h1 && h1.textContent && (h1.textContent.includes('404') || h1.textContent.includes('Not Found'));
+                }''')
+                if is_404:
+                    await page.close()
+                    return None  # Signal 404
+
+                # Apply DOM manipulation
+                await page.evaluate(DOM_MANIPULATE_JS)
+                await page.wait_for_timeout(3000)
+
+                # Generate PDF
+                await page.pdf(
+                    path=str(target_output_path),
+                    format='A4',
+                    print_background=True,
+                    margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
+                )
+
                 await page.close()
-                async with lock:
-                    progress['failed'] += 1
-                    progress['done'] += 1
-                print(f'    [{idx:3d}] ✗ {title} — 404 Not Found')
-                return
 
-            # Apply DOM manipulation
-            await page.evaluate(DOM_MANIPULATE_JS)
-            await page.wait_for_timeout(3000)
+                size_kb = target_output_path.stat().st_size / 1024 if target_output_path.exists() else 0
+                return True
 
-            # Generate PDF
-            await page.pdf(
-                path=str(output_path),
-                format='A4',
-                print_background=True,
-                margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
-            )
+            except Exception as e:
+                last_error = e
+                if page:
+                    try:
+                        await page.close()
+                    except Exception:
+                        pass
+                if attempt < max_retries:
+                    await asyncio.sleep(1)  # Brief pause before retry
 
-            await page.close()
+        # All retries exhausted with error
+        return last_error
 
-            size_kb = output_path.stat().st_size / 1024 if output_path.exists() else 0
+    result = await _do_convert(url, output_path)
+
+    # Fallback: if zh-CN page is 404, try English version
+    if result is None and '/zh-CN/' in href:
+        en_href = href.replace('/zh-CN/', '/en/')
+        en_url = f'{ORIGIN}{en_href}'
+        en_filename = url_to_filename(en_url) + '.pdf'
+        en_output_path = pdfs_dir / en_filename
+        if en_output_path.exists() and en_output_path.stat().st_size > 0:
+            print(f'    [{idx:3d}] ✓ {title:<48s}   (zh-CN 404, using existing en version)')
             async with lock:
                 progress['success'] += 1
                 progress['done'] += 1
-            print(f'    [{idx:3d}] ✓ {title:<48s} {size_kb:>8.1f} KB')
             return
+        print(f'    [{idx:3d}]   ↪ zh-CN 404, trying English: {en_href}')
+        result = await _do_convert(en_url, en_output_path)
 
-        except Exception as e:
-            last_error = e
-            if page:
-                try:
-                    await page.close()
-                except Exception:
-                    pass
-            if attempt < max_retries:
-                await asyncio.sleep(1)  # Brief pause before retry
-
-    # All retries exhausted
-    async with lock:
-        progress['failed'] += 1
-        progress['done'] += 1
-    print(f'    [{idx:3d}] ✗ {title:<48s} FAILED after {max_retries} attempts: {last_error}')
+    if result is True:
+        actual_path = output_path if output_path.exists() else pdfs_dir / (url_to_filename(f'{ORIGIN}{href}'.replace('/zh-CN/', '/en/')) + '.pdf')
+        size_kb = actual_path.stat().st_size / 1024 if actual_path.exists() else 0
+        async with lock:
+            progress['success'] += 1
+            progress['done'] += 1
+        print(f'    [{idx:3d}] ✓ {title:<48s} {size_kb:>8.1f} KB')
+    elif result is None:
+        async with lock:
+            progress['failed'] += 1
+            progress['done'] += 1
+        print(f'    [{idx:3d}] ✗ {title:<48s} 404 (both zh-CN and en)')
+    else:
+        async with lock:
+            progress['failed'] += 1
+            progress['done'] += 1
+        print(f'    [{idx:3d}] ✗ {title:<48s} FAILED after {max_retries} attempts: {result}')
 
 
 async def worker_sem(page_data, pdfs_dir, timeout_sec, max_retries, browser, progress, lock, semaphore):

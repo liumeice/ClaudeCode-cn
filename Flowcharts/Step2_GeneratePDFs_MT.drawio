@@ -1,0 +1,223 @@
+<mxfile host="Electron">
+  <diagram id="step2-mt-flowchart" name="Step 2 (MT): 多线程生成单页 PDF">
+    <mxGraphModel dx="2176" dy="1622" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=16;fontStyle=1" value="Step 2 (MT): 多线程生成单页 PDF (step2_generate_pdfs_mt.py)" vertex="1">
+          <mxGeometry height="30" width="440" x="612" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" value="开始" vertex="1">
+          <mxGeometry height="40" width="100" x="637" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="load" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="读取 sidebar.json" vertex="1">
+          <mxGeometry height="40" width="180" x="597" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="load" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flatten" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="flatten_pages() 展平为叶子列表" vertex="1">
+          <mxGeometry height="40" width="180" x="597" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="load" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="flatten" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dirs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="创建输出目录 temp/pdfs/" vertex="1">
+          <mxGeometry height="40" width="180" x="597" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="flatten" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="dirs" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cover_check" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="封面 PDF 存在?" vertex="1">
+          <mxGeometry height="50" width="170" x="602" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="dirs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="cover_check" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gen_cover" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" value="生成封面 PDF (async)&#xa;HTML 渐变+排版 → A4" vertex="1">
+          <mxGeometry height="50" width="170" x="892" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="cover_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="gen_cover" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cover_out" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9" value="Cover_Claude_Code.pdf" vertex="1">
+          <mxGeometry height="40" width="140" x="907" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="gen_cover" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="cover_out" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7b" edge="1" parent="1" source="cover_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="launch" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="812" y="415" />
+              <mxPoint x="687" y="415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="launch" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="async_playwright()&#xa;启动 Chromium (单实例共享)" vertex="1">
+          <mxGeometry height="45" width="180" x="597" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="cover_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="launch" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="semaphore" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1" value="Semaphore(N workers)&#xa;限制并发数" vertex="1">
+          <mxGeometry height="45" width="180" x="597" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="launch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="semaphore" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="progress" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="创建共享 progress dict&#xa;+ asyncio.Lock()" vertex="1">
+          <mxGeometry height="40" width="180" x="597" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="semaphore" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="progress" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fanout" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1" value="为每个页面创建 asyncio.Task&#xa;worker_sem → convert_page_async" vertex="1">
+          <mxGeometry height="50" width="180" x="597" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="progress" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="fanout" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="worker_title" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="convert_page_async 单任务流程" vertex="1">
+          <mxGeometry height="50" width="180" x="230" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="fanout" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="worker_title" value="扇出">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="411" y="495" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="w_check" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="PDF 已存在?" vertex="1">
+          <mxGeometry height="45" width="180" x="230" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="worker_title" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="w_check" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_skip" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="⏭ 跳过 (幂等)&#xa;progress[skipped]++" vertex="1">
+          <mxGeometry height="45" width="140" x="40" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="w_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="w_skip" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_goto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" value="browser.new_page()&#xa;page.goto(url, networkidle)" vertex="1">
+          <mxGeometry height="45" width="180" x="230" y="655" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="w_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="w_goto" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_wait" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" value="wait 3000ms" vertex="1">
+          <mxGeometry height="35" width="180" x="230" y="758" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="w_goto" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="w_wait" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_404" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="404?" vertex="1">
+          <mxGeometry height="40" width="170" x="235" y="818" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="w_wait" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="w_404" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_404close" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="page.close()&#xa;progress[failed]++" vertex="1">
+          <mxGeometry height="40" width="140" x="30" y="818" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="w_404" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="w_404close" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_dom" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1" value="page.evaluate(DOM_MANIPULATE_JS)&#xa;+ wait 3000ms" vertex="1">
+          <mxGeometry height="45" width="180" x="230" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="w_404" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="w_dom" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_export" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" value="page.pdf() 导出 A4" vertex="1">
+          <mxGeometry height="40" width="180" x="230" y="958" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="w_dom" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="w_export" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_close" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="page.close()&#xa;progress[success]++" vertex="1">
+          <mxGeometry height="40" width="180" x="230" y="1023" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="w_export" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="w_close" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="w_retry" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="重试 &lt; max_retries" vertex="1">
+          <mxGeometry height="40" width="150" x="430" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="w_goto" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="w_retry" value="异常">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="720" />
+              <mxPoint x="505" y="720" />
+            </Array>
+            <mxPoint x="500" y="760" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="w_retry" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontSize=9;labelBackgroundColor=#ffffff" target="w_goto" value="是, 回重试">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="411" y="688" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gather" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="asyncio.gather(*tasks)&#xa;等待所有任务完成" vertex="1">
+          <mxGeometry height="45" width="180" x="597" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="fanout" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" target="gather" value="汇聚">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="closebrowser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="关闭 browser" vertex="1">
+          <mxGeometry height="35" width="180" x="597" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="gather" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="closebrowser" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="summary" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" value="打印摘要: 成功/跳过/失败" vertex="1">
+          <mxGeometry height="40" width="180" x="597" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="closebrowser" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="summary" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="end" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" value="完成" vertex="1">
+          <mxGeometry height="40" width="100" x="637" y="970" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="summary" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" target="end" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mtdetail" parent="1" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1" value="与同步版的关键差异" vertex="1">
+          <mxGeometry height="300" width="350" x="892" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="md1" parent="mtdetail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=9;align=left" value="1. 使用 Playwright async API (async_playwright)&#xa;2. 单个 Browser 实例, 多任务共享&#xa;3. asyncio.Semaphore 限制并发数 (默认=CPU线程数)&#xa;4. 每个任务独立 new_page() / close()&#xa;5. progress dict + asyncio.Lock 线程安全计数&#xa;6. 每任务内置重试循环 (max_retries)&#xa;7. asyncio.gather() 并发等待所有任务&#xa;&#xa;参数: --workers N, --timeout N, --retries N&#xa;默认 workers = os.cpu_count()" vertex="1">
+          <mxGeometry height="258" width="330" x="10" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="domdetail" parent="1" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1" value="DOM_MANIPULATE_JS 13 步" vertex="1">
+          <mxGeometry height="340" width="350" x="892" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" parent="domdetail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=9;align=left" value="#1  移除顶部大空白 (pt-40/pt-32)&#xa;#2  固定 header 改相对定位&#xa;#3  隐藏左侧边栏 + backdrop&#xa;#4  隐藏右侧 TOC&#xa;#5  隐藏复制页面按钮&#xa;#6  隐藏代码块 copy 按钮&#xa;#7  隐藏页脚/反馈 widget&#xa;#8  隐藏 Claude AI 输入栏&#xa;#9  隐藏前后文章导航 + 编辑此页&#xa;#10 清理 Frontmatter&#xa;#11 展开 Tab 组件为连续 div&#xa;#12 图片路径修复 + 高图适配&#xa;#13 注入打印 CSS + 背景统一为白色" vertex="1">
+          <mxGeometry height="298" width="330" x="10" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1" value="图例" vertex="1">
+          <mxGeometry height="140" width="160" x="1262" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="lg1" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" value="🟢 椭圆: 开始/结束" vertex="1">
+          <mxGeometry height="18" width="140" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" value="🔷 蓝色: 数据处理" vertex="1">
+          <mxGeometry height="18" width="140" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" value="🟡 菱形: 判断/循环" vertex="1">
+          <mxGeometry height="18" width="140" x="8" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" value="🟠 橙色: 并发控制" vertex="1">
+          <mxGeometry height="18" width="140" x="8" y="94" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" value="🟣 紫色: 浏览器操作" vertex="1">
+          <mxGeometry height="18" width="140" x="8" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="leftlabel" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#999999" value="← Worker 子任务" vertex="1">
+          <mxGeometry height="15" width="100" x="270" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="rightlabel" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#999999" value="详情 →" vertex="1">
+          <mxGeometry height="15" width="80" x="932" y="445" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

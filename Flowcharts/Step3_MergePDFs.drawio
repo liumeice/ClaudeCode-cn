@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.0.0">
+  <diagram id="step3-flowchart" name="Step 3: 合并 PDF">
+    <mxGraphModel dx="1422" dy="734" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Step 3: 合并 PDF (step3_merge_pdfs.py)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="15" width="380" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="开始" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="350" y="60" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Load sidebar.json -->
+        <mxCell id="load" value="读取 sidebar.json&#xa;加载文档树结构" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="120" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="start" target="load">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Check pdfs_dir -->
+        <mxCell id="checkdir" value="temp/pdfs/ 目录存在?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="305" y="190" width="190" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="load" target="checkdir">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Error exit -->
+        <mxCell id="error_exit" value="Error: 目录不存在&#xa;提示运行 step2&#xa;sys.exit(1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="110" y="190" width="150" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="否" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff;fontColor=#b85450" edge="1" parent="1" source="checkdir" target="error_exit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flatten pages -->
+        <mxCell id="flatten" value="flatten_pages_with_level()&#xa;展平为有序页面列表" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="260" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="是" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;labelBackgroundColor=#ffffff" edge="1" parent="1" source="checkdir" target="flatten">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Build pdf_page_counts -->
+        <mxCell id="countloop" value="遍历每个页面, 统计 PDF 页数&#xa;fitz.open() → doc.page_count&#xa;建立 {href → 页数} 映射" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="330" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="flatten" target="countloop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Calculate start pages -->
+        <mxCell id="calcstart" value="计算每个页面的起始页码&#xa;current_page = 2 (封面占第1页)&#xa;累加 pdf_page_counts 得 offset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="410" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="countloop" target="calcstart">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Print stats -->
+        <mxCell id="printstats" value="打印: 总内容页数 / 估计PDF总页数" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="490" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="calcstart" target="printstats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Collect PDF files -->
+        <mxCell id="collect" value="收集待合并的 PDF 文件列表&#xa;① 封面 PDF (如存在)&#xa;② 按 sidebar.json 顺序添加页 PDF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="550" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="printstats" target="collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Print file count -->
+        <mxCell id="printcount" value="打印: PDFs to merge: N" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="630" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="collect" target="printcount">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Merge loop -->
+        <mxCell id="mergeloop" value="遍历 pdf_files 列表&#xa;fitz.insert_pdf() 逐个插入&#xa;每 50 个打印一次进度" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="310" y="690" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="printcount" target="mergeloop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Build TOC -->
+        <mxCell id="buildtoc" value="build_precise_toc()&#xa;构建书签 TOC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="310" y="770" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="mergeloop" target="buildtoc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Set TOC -->
+        <mxCell id="settoc" value="output_pdf.set_toc(toc)&#xa;应用书签到 PDF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="835" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="buildtoc" target="settoc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Save -->
+        <mxCell id="save" value="output_pdf.save()&#xa;garbage=4, deflate=True&#xa;→ Output/ClaudeCodeDocs.pdf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="310" y="900" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="settoc" target="save">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Final stats -->
+        <mxCell id="finalstats" value="打印最终统计&#xa;文件大小 (MB) / 总页数 / 书签数" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="310" y="975" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="save" target="finalstats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="完成" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="350" y="1050" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="finalstats" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Final output -->
+        <mxCell id="finalout" value="Output/ClaudeCodeDocs.pdf&#xa;带书签/目录的最终 PDF" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="570" y="900" width="150" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="save" target="finalout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ====== TOC Building Detail ====== -->
+        <mxCell id="tocdetail" value="build_precise_toc() 详情" style="swimlane;startSize=28;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="570" y="500" width="250" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="td1" value="输入: sidebar tree + page_start_map&#xa;&#xa;process_nodes() 前序遍历:&#xa;  有子节点: 取首个叶子子页的起始页&#xa;         作为当前分类书签的页码&#xa;  无子节点(叶子): 直接用起始页码&#xa;&#xa;输出: [[level, title, page], ...]&#xa;&#xa;规范化: 级别跳跃不超过1级&#xa;(PyMuPDF 格式要求)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=9;align=left" vertex="1" parent="tocdetail">
+          <mxGeometry x="10" y="32" width="230" height="198" as="geometry" />
+        </mxCell>
+
+        <!-- ====== Page offset calculation detail ====== -->
+        <mxCell id="offsetdetail" value="页码计算示例" style="swimlane;startSize=28;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="570" y="330" width="250" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="od1" value="page_start_map: {href → 合并后PDF中的页码}&#xa;&#xa;第1页: 封面 PDF (Cover_Claude_Code.pdf)&#xa;current_page = 2&#xa;&#xa;page1 href → page_start_map[href] = 2&#xa;page1 占3页 → page2 从第5页开始&#xa;page2 href → page_start_map[href] = 5&#xa;... 依序累加" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=9;align=left" vertex="1" parent="offsetdetail">
+          <mxGeometry x="10" y="32" width="230" height="103" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="图例" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="860" y="60" width="140" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="lg1" value="🟢 椭圆: 开始/结束" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="8" y="28" width="125" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="🔷 蓝色: 数据处理" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="8" y="53" width="125" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="🟡 菱形: 判断/循环" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="8" y="78" width="125" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" value="🟠 橙色: 关键输出操作" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=0;autosize=1;strokeColor=none;fillColor=none;fontSize=10" vertex="1" parent="legend">
+          <mxGeometry x="8" y="103" width="125" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
