@@ -1,0 +1,15 @@
+# .claudeignore 示例配置
+node_modules/
+dist/
+build/
+.next/
+out/
+.git/
+.venv/
+venv/
+__pycache__/
+coverage/
+*.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
