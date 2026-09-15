@@ -34,12 +34,11 @@ DOM_MANIPULATE_JS = """
 function() {
   // === 保留顶部导航栏和图标，只隐藏不需要的元素 ===
 
-  // 1. 移除标题上方大空白（pt-40 = 40px padding-top）
-  document.querySelectorAll('[class*="pt-40"], [class*="pt-32"]').forEach(function(el) {
-    var c = el.getAttribute('class') || '';
-    if (c.indexOf('pt-40') >= 0 || c.indexOf('pt-32') >= 0) {
-      el.style.setProperty('padding-top', '0', 'important');
-    }
+  // 1. 移除标题上方大空白。内容容器实际使用任意值类
+  //    pt-[calc(10rem+var(--banner-height,2.5rem))]（配合 lg:pt-10 覆盖），
+  //    print 布局宽度 < lg 断点，lg:pt-10 失效，calc 值（~200px）生效产生空白。
+  document.querySelectorAll('[class*="pt-[calc"]').forEach(function(el) {
+    el.style.setProperty('padding-top', '0', 'important');
   });
 
   // 固定顶部导航栏改为相对定位（避免 PDF 中重叠）
@@ -199,6 +198,11 @@ function() {
       tabList.parentNode.insertBefore(section, tabList);
     }
   }
+
+  // 9b. 展开所有 <details> 折叠区（如"自动化你一直在推迟的工作"的手风琴组件）
+  document.querySelectorAll('details').forEach(function(el) {
+    el.setAttribute('open', '');
+  });
 
   // 10. Fix image paths
   document.querySelectorAll('img').forEach(function(el) {
