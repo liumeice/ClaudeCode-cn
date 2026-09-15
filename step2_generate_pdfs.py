@@ -247,6 +247,38 @@ function() {
     el.style.setProperty('page-break-inside', 'avoid', 'important');
   });
 
+  // 10c. 修复代码块提前换行。站点把代码块设计为横向滚动组件，其样式表规则
+  //      [data-has-floating-buttons] > [data-component-part="code-block-root"] {
+  //        padding-right: var(--code-padding-right, 0px) !important;  // 实测 163px
+  //      }
+  //      为浮动按钮预留右侧空间。转 PDF 时注入的 print CSS（max-width:100%）收缩了
+  //      code 盒子，但该 padding 残留盒内（border-box），实际折行宽度被偷走约
+  //      163px（~19 个等宽字符），长代码行提前折断。
+  //      注意：站点监听 beforeprint 重建代码块 DOM，行内样式修复会被清掉，因此
+  //      必须改写样式表规则本身（CSSOM）——把 var(...) 原地替换为字面 0px，
+  //      DOM 重建后规则依然生效。
+  (function() {
+    function patchRules(rules) {
+      for (var ri = 0; ri < rules.length; ri++) {
+        var rule = rules[ri];
+        if (rule.cssRules && !(rule instanceof CSSStyleRule)) {
+          patchRules(rule.cssRules);
+          continue;
+        }
+        if (!rule.selectorText) continue;
+        if (rule.selectorText.indexOf('[data-has-floating-buttons]') >= 0 &&
+            rule.style && rule.style.getPropertyValue('padding-right')) {
+          rule.style.setProperty('padding-right', '0px', 'important');
+        }
+      }
+    }
+    for (var si = 0; si < document.styleSheets.length; si++) {
+      var rules;
+      try { rules = document.styleSheets[si].cssRules; } catch (e) { continue; }
+      patchRules(rules);
+    }
+  })();
+
   // 11. Print-only CSS
   var bgStyle = document.createElement('style');
   bgStyle.textContent = [
